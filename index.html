@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantum Physics Lab - Educational Tool</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      background-color: #fafafb;
+    }
+
+    /* Elegant SaaS Range Sliders */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      background: #f1f5f9;
+      height: 4px;
+      border-radius: 9999px;
+      border: 1px solid #e2e8f0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      margin-top: -6px;
+      background-color: #8b5cf6;
+      height: 14px;
+      width: 14px;
+      border-radius: 9999px;
+      border: 1px solid #7c3aed;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      transition: all 0.1s ease-in-out;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      background-color: #7c3aed;
+    }
+  </style>
+</head>
+
+<body class="text-slate-900 antialiased min-h-screen flex flex-col bg-[#fafafb]">
+
+  <!-- Header Navigation Panel -->
+  <header
+    class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+    <div class="flex flex-col">
+      <h1 class="text-lg font-bold tracking-tight text-slate-800" data-i18n="appTitle">QUANTUM PHYSICS LAB</h1>
+      <span class="text-[11px] font-semibold text-slate-400 -mt-0.5" data-i18n="subtitle">Educational Tool</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <button id="languageToggle" type="button" onclick="toggleLanguage()"
+        class="group inline-flex items-center gap-1 text-xs font-bold border border-violet-200 px-1 py-1 rounded-full bg-violet-50 shadow-sm transition-all hover:bg-violet-100"
+        aria-label="Switch language">
+        <span id="languageToggleEn" class="text-[10px] tracking-widest px-2 py-0.5 rounded-full transition-all">EN</span><span id="languageToggleEs" class="text-[10px] tracking-widest px-2 py-0.5 rounded-full transition-all">ES</span>
+      </button>
+      <button onclick="resetLab()"
+        class="text-xs font-semibold text-slate-700 hover:text-slate-950 border border-slate-200 px-3.5 py-1.5 rounded bg-white shadow-sm transition-all hover:bg-slate-50"
+        data-i18n="reset">
+        Reset Simulation
+      </button>
+    </div>
+  </header>
+
+  <!-- Dashboard Workspace Grid (Based exactly on layout of image_93b35d.png) -->
+  <main class="flex-grow p-6 lg:p-8 max-w-[1440px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- COLUMN 1: Control Deck & Phase Diagram (lg:col-span-3) -->
+    <section class="lg:col-span-3 flex flex-col gap-8">
+
+      <!-- Control Deck Panel -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
+        <div class="border-b border-slate-100 pb-2">
+          <h3 class="text-sm font-bold text-slate-900 tracking-tight uppercase" data-i18n="controlDeck">Control Deck</h3>
+          <p class="text-xs text-slate-400 mt-0.5 font-sans" data-i18n="controlDeckDesc">Alter global physics constraints in real-time.</p>
+        </div>
+
+        <!-- Slider: Temperature -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-semibold text-slate-700" data-i18n="temperature">Temperature (T)</span>
+            <span class="font-bold text-pink-500" id="tempLabel">10 nK</span>
+          </div>
+          <input type="range" id="tempSlider" min="0" max="300" value="10" class="w-full accent-pink-500" />
+          <p class="text-[11px] text-slate-400 italic leading-snug" data-i18n="temperatureHint">
+            Lowering this makes atoms freeze and merge into one super-atom!
+          </p>
+        </div>
+
+        <!-- Slider: Rotation Speed -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-semibold text-slate-700" data-i18n="rotation">Rotation Speed (&Omega;)</span>
+            <span class="font-bold text-violet-500" id="rotLabel">0.0 rad/s</span>
+          </div>
+          <input type="range" id="rotSlider" min="0" max="10" step="0.1" value="0.0" class="w-full accent-violet-500" />
+          <p class="text-[11px] text-slate-400 italic leading-snug" data-i18n="rotationHint">
+            Spinning the gas creates tiny quantum whirlpools called vortices!
+          </p>
+        </div>
+
+        <!-- Slider: Gas Density -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-semibold text-slate-700" data-i18n="density">Gas Density (n&#8320;)</span>
+            <span class="font-bold text-cyan-500" id="densityLabel">60 px</span>
+          </div>
+          <input type="range" id="densitySlider" min="20" max="100" value="60" class="w-full accent-cyan-500" />
+          <p class="text-[11px] text-slate-400 italic leading-snug" data-i18n="densityHint">
+            Packs the atoms tighter, shrinking the core size of quantum whirlpools.
+          </p>
+        </div>
+      </div>
+
+      <!-- Phase Transition Diagram Panel -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-sm flex flex-col gap-3">
+        <div class="border-b border-slate-100 pb-2">
+          <h3 class="text-sm font-bold text-slate-900 tracking-tight uppercase" data-i18n="phaseBoundary">Phase Boundary Chart</h3>
+          <p class="text-xs text-slate-400 mt-0.5 font-sans" data-i18n="phaseBoundaryDesc">Click graph space to set Temperature & Rotation speed.</p>
+        </div>
+
+        <div class="relative w-full aspect-[1.4] bg-white rounded-lg overflow-hidden flex items-center justify-center">
+          <canvas id="phaseChartCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+        </div>
+
+        <p class="text-[11px] text-slate-400 italic text-center" data-i18n="phaseBoundaryHint">
+          Tracks the boundary: low temperature and high rotation place the gas in the ordered phase!
+        </p>
+      </div>
+
+    </section>
+
+    <!-- COLUMN 2: Vortex Dual-View & Lattice Swap View (lg:col-span-5) -->
+    <section class="lg:col-span-5 flex flex-col gap-8">
+
+      <!-- Quantum Vortex Dual-View Circular Displays -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
+        <div class="border-b border-slate-100 pb-2.5">
+          <h3 class="text-sm font-bold text-slate-900 tracking-tight uppercase" data-i18n="vortexTitle">Quantum Vortex Dual-View</h3>
+          <p class="text-xs text-slate-400 mt-0.5 font-sans" data-i18n="vortexDesc">Symmetric Abrikosov lattice vs. quantized angular phase
+            winding.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Density Canvas -->
+          <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold text-slate-400 tracking-wider mb-2" data-i18n="densityCanvas">DENSITY |&psi;a|&sup2;</span>
+            <div
+              class="w-full aspect-square border border-slate-100 rounded-xl overflow-hidden bg-slate-950 shadow-inner">
+              <canvas id="vortexDensityCanvas" class="w-full h-full block"></canvas>
+            </div>
+          </div>
+          <!-- Phase Canvas -->
+          <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold text-slate-400 tracking-wider mb-2" data-i18n="phaseCanvas">PHASE &theta;a</span>
+            <div
+              class="w-full aspect-square border border-slate-100 rounded-xl overflow-hidden bg-slate-950 shadow-inner">
+              <canvas id="vortexPhaseCanvas" class="w-full h-full block"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-400 italic text-center leading-snug" data-i18n="vortexHint">
+          Density displays atom counts with dark whirlpool cores; Phase maps the winding spin direction with a red
+          arrow!
+        </p>
+      </div>
+
+      <!-- Quantum Lattice ("Swap" View) Node Matrix -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
+        <div class="border-b border-slate-100 pb-2.5 flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 tracking-tight uppercase" data-i18n="latticeTitle">Quantum Lattice ("Swap" View)</h3>
+            <p class="text-xs text-slate-400 mt-0.5 font-sans" data-i18n="latticeDesc">Click two adjacent nodes to trigger their
+              exchange/tunneling action.</p>
+          </div>
+          <span id="latticeStatus"
+            class="text-[9px] font-semibold text-slate-400 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded tracking-wide uppercase font-sans">SELECT
+            FIRST</span>
+        </div>
+
+        <div class="relative w-full aspect-[1.35] bg-white rounded-xl overflow-hidden flex items-center justify-center">
+          <canvas id="latticeCanvas" class="w-full h-full block cursor-pointer"></canvas>
+        </div>
+
+        <p class="text-[11px] text-slate-400 italic text-center leading-snug" data-i18n="latticeHint">
+          Click on atoms to flip their spin state (arrows). Connected loops show adjacent atoms swapping quantum
+          states!
+        </p>
+      </div>
+
+    </section>
+
+    <!-- COLUMN 3: Massive 3D Waveface Surface & Kinetic Box (lg:col-span-4) -->
+    <section class="lg:col-span-4 flex flex-col gap-8">
+
+      <!-- Massive 3D Wavefunction Surface -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 tracking-tight uppercase" data-i18n="surfaceTitle">3D Wavefunction Surface</h2>
+            <p class="text-xs text-slate-400 mt-0.5 font-sans" data-i18n="surfaceDesc">Dense solid surface mesh simulating a flat-topped plateau
+              collapse.</p>
+          </div>
+        </div>
+
+        <div class="relative w-full aspect-[1.3] bg-white rounded-lg flex items-center justify-center overflow-hidden">
+          <canvas id="surface3DCanvas" class="w-full h-full block"></canvas>
+        </div>
+
+        <p class="text-[11px] text-slate-400 italic text-center" data-i18n="surfaceHint">
+          Visualizes the gas thickness in 3D. The dip in the center is a vortex core where density drops to zero!
+        </p>
+      </div>
+
+      <!-- 3D Particle Cloud Box Kinetic Chamber -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
+        <div class="border-b border-slate-100 pb-2.5">
+          <h3 class="text-sm font-bold text-slate-900 tracking-tight uppercase" data-i18n="particleTitle">Particle Cloud Box</h3>
+          <p class="text-xs text-slate-400 mt-0.5 font-sans" data-i18n="particleDesc">Kinetic simulator displaying molecular phase ordering.</p>
+        </div>
+
+        <div class="relative w-full aspect-[1.3] bg-white rounded-xl overflow-hidden flex items-center justify-center">
+          <canvas id="particleCloudCanvas" class="w-full h-full block"></canvas>
+        </div>
+
+        <p class="text-[11px] text-slate-400 italic text-center leading-snug" data-i18n="particleHint">
+          At high temperatures, atoms zip around chaotically. At low temperatures, they slow down and align into a neat
+          quantum crowd!
+        </p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Navigation Footer -->
+  <footer class="bg-white border-t border-slate-100 px-8 py-5 text-center text-xs text-slate-400">
+    <p class="font-bold text-slate-500" data-i18n="footer">Made by Juliette Quinones &bull; Advanced Scientific UI Laboratory</p>
+  </footer>
+
+  <!-- Core JavaScript Simulation Loop -->
+  <script>
+    const translations = {
+      en: {
+        pageTitle: 'Quantum Physics Lab - Educational Tool',
+        appTitle: 'QUANTUM PHYSICS LAB',
+        subtitle: 'Educational Tool',
+        reset: 'Reset Simulation',
+        controlDeck: 'Control Deck',
+        controlDeckDesc: 'Alter global physics constraints in real-time.',
+        temperature: 'Temperature (T)',
+        temperatureHint: 'Lowering this makes atoms freeze and merge into one super-atom!',
+        rotation: 'Rotation Speed (&Omega;)',
+        rotationHint: 'Spinning the gas creates tiny quantum whirlpools called vortices!',
+        density: 'Gas Density (n&#8320;)',
+        densityHint: 'Packs the atoms tighter, shrinking the core size of quantum whirlpools.',
+        phaseBoundary: 'Phase Boundary Chart',
+        phaseBoundaryDesc: 'Click graph space to set Temperature & Rotation speed.',
+        phaseBoundaryHint: 'Tracks the boundary: low temperature and high rotation place the gas in the ordered phase!',
+        vortexTitle: 'Quantum Vortex Dual-View',
+        vortexDesc: 'Symmetric Abrikosov lattice vs. quantized angular phase winding.',
+        densityCanvas: 'DENSITY |&psi;a|&sup2;',
+        phaseCanvas: 'PHASE &theta;a',
+        vortexHint: 'Density displays atom counts with dark whirlpool cores; Phase maps the winding spin direction with a red arrow!',
+        latticeTitle: 'Quantum Lattice ("Swap" View)',
+        latticeDesc: 'Click two adjacent nodes to trigger their exchange/tunneling action.',
+        latticeHint: 'Click on atoms to flip their spin state (arrows). Connected loops show adjacent atoms swapping quantum states!',
+        surfaceTitle: '3D Wavefunction Surface',
+        surfaceDesc: 'Dense solid surface mesh simulating a flat-topped plateau collapse.',
+        surfaceHint: 'Visualizes the gas thickness in 3D. The dip in the center is a vortex core where density drops to zero!',
+        particleTitle: 'Particle Cloud Box',
+        particleDesc: 'Kinetic simulator displaying molecular phase ordering.',
+        particleHint: 'At high temperatures, atoms zip around chaotically. At low temperatures, they slow down and align into a neat quantum crowd!',
+        footer: 'Made by Juliette Quinones &bull; Advanced Scientific UI Laboratory',
+        selectFirst: 'SELECT FIRST',
+        selectNeighbor: 'SELECT NEIGHBOR',
+        swapping: 'SWAPPING...',
+        disorderedGas: 'Disordered Gas',
+        orderedSuperfluid: 'Ordered Superfluid',
+        chartSuperfluid: 'Superfluid (Ordered)',
+        chartThermal: 'Thermal (Disordered)',
+        chartRotation: 'Rotation \u03a9',
+        chartTemp: 'Temp T (nK)'
+      },
+      es: {
+        pageTitle: 'Laboratorio de F&iacute;sica Cu&aacute;ntica - Herramienta Educativa',
+        appTitle: 'LABORATORIO DE F&Iacute;SICA CU&Aacute;NTICA',
+        subtitle: 'Herramienta Educativa',
+        reset: 'Reiniciar Simulaci&oacute;n',
+        controlDeck: 'Panel de Control',
+        controlDeckDesc: 'Modifica restricciones f&iacute;sicas globales en tiempo real.',
+        temperature: 'Temperatura (T)',
+        temperatureHint: '&iexcl;Al bajarla, los &aacute;tomos se congelan y se fusionan en un super&aacute;tomo!',
+        rotation: 'Velocidad de Rotaci&oacute;n (&Omega;)',
+        rotationHint: '&iexcl;Al girar el gas se crean peque&ntilde;os remolinos cu&aacute;nticos llamados v&oacute;rtices!',
+        density: 'Densidad del Gas (n&#8320;)',
+        densityHint: 'Compacta los &aacute;tomos y reduce el tama&ntilde;o del n&uacute;cleo de los remolinos cu&aacute;nticos.',
+        phaseBoundary: 'Gr&aacute;fico de Frontera de Fase',
+        phaseBoundaryDesc: 'Haz clic en el gr&aacute;fico para fijar la temperatura y la velocidad de rotaci&oacute;n.',
+        phaseBoundaryHint: 'Muestra la frontera: baja temperatura y alta rotaci&oacute;n colocan el gas en la fase ordenada.',
+        vortexTitle: 'Doble Vista de V&oacute;rtices Cu&aacute;nticos',
+        vortexDesc: 'Red sim&eacute;trica de Abrikosov vs. fase angular cuantizada.',
+        densityCanvas: 'DENSIDAD |&psi;a|&sup2;',
+        phaseCanvas: 'FASE &theta;a',
+        vortexHint: 'La densidad muestra conteos de &aacute;tomos con n&uacute;cleos oscuros; la fase mapea el giro con una flecha roja.',
+        latticeTitle: 'Red Cu&aacute;ntica (Vista "Swap")',
+        latticeDesc: 'Haz clic en dos nodos adyacentes para activar su intercambio/tunelamiento.',
+        latticeHint: 'Haz clic en los &aacute;tomos para invertir su esp&iacute;n. Los bucles conectados muestran estados cu&aacute;nticos intercambi&aacute;ndose.',
+        surfaceTitle: 'Superficie 3D de Funci&oacute;n de Onda',
+        surfaceDesc: 'Malla de superficie s&oacute;lida que simula el colapso de una meseta plana.',
+        surfaceHint: 'Visualiza el grosor del gas en 3D. La depresi&oacute;n central es un n&uacute;cleo de v&oacute;rtice donde la densidad cae a cero.',
+        particleTitle: 'Caja de Nube de Part&iacute;culas',
+        particleDesc: 'Simulador cin&eacute;tico que muestra el ordenamiento de fases moleculares.',
+        particleHint: 'A temperaturas altas, los &aacute;tomos se mueven ca&oacute;ticamente. A temperaturas bajas, se ralentizan y se alinean en una multitud cu&aacute;ntica ordenada.',
+        footer: 'Hecho por Juliette Quinones &bull; Laboratorio Avanzado de UI Cient&iacute;fica',
+        selectFirst: 'ELIGE PRIMERO',
+        selectNeighbor: 'ELIGE VECINO',
+        swapping: 'INTERCAMBIANDO...',
+        disorderedGas: 'Gas Desordenado',
+        orderedSuperfluid: 'Superfluido Ordenado',
+        chartSuperfluid: 'Superfluido (Ordenado)',
+        chartThermal: 'T\u00e9rmico (Desordenado)',
+        chartRotation: 'Rotaci\u00f3n \u03a9',
+        chartTemp: 'Temp T (nK)'
+      }
+    };
+
+    let currentLanguage = localStorage.getItem('quantumLabLanguage') || 'en';
+
+    function t(key) {
+      return translations[currentLanguage][key] || translations.en[key] || key;
+    }
+
+    function decodeHtml(value) {
+      const parser = new DOMParser();
+      return parser.parseFromString(value, 'text/html').documentElement.textContent;
+    }
+
+    function setLatticeStatus(key) {
+      const status = document.getElementById('latticeStatus');
+      if (status) status.innerText = t(key);
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLanguage;
+      document.title = decodeHtml(t('pageTitle'));
+      document.querySelectorAll('[data-i18n]').forEach((element) => {
+        element.innerHTML = t(element.dataset.i18n);
+      });
+
+      const toggleEn = document.getElementById('languageToggleEn');
+      const toggleEs = document.getElementById('languageToggleEs');
+      const toggle = document.getElementById('languageToggle');
+      const activeLanguageClass = 'text-violet-700 bg-white shadow-sm';
+      const inactiveLanguageClass = 'text-slate-400 hover:text-violet-600';
+      if (toggleEn) toggleEn.className = `text-[10px] tracking-widest px-2 py-0.5 rounded-full transition-all ${currentLanguage === 'en' ? activeLanguageClass : inactiveLanguageClass}`;
+      if (toggleEs) toggleEs.className = `text-[10px] tracking-widest px-2 py-0.5 rounded-full transition-all ${currentLanguage === 'es' ? activeLanguageClass : inactiveLanguageClass}`;
+      if (toggle) toggle.setAttribute('aria-label', currentLanguage === 'en' ? 'Cambiar a espa\u00f1ol' : 'Switch to English');
+
+      if (!activeSwap) {
+        setLatticeStatus(selectedNode ? 'selectNeighbor' : 'selectFirst');
+      } else {
+        setLatticeStatus('swapping');
+      }
+      updateStateHUD();
+      phaseChartDirty = true;
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'es' : 'en';
+      localStorage.setItem('quantumLabLanguage', currentLanguage);
+      applyLanguage();
+    }
+
+    // Sliders state
+    let temperature = 10;     // nK [0, 300]
+    let rotationSpeed = 0.0;  // rad/s [0.0, 10.0]
+    let gasDensity = 60;      // px [20, 100]
+
+    // Predefined coordinates for Abrikosov vortex lattices
+    const abrikosovGrid = [
+      { rx: 0.0, ry: 0.0, q: 1 },
+      // Ring 1 (6 vortices)
+      { rx: 23 * Math.cos(0), ry: 23 * Math.sin(0), q: 1 },
+      { rx: 23 * Math.cos(Math.PI / 3), ry: 23 * Math.sin(Math.PI / 3), q: 1 },
+      { rx: 23 * Math.cos(2 * Math.PI / 3), ry: 23 * Math.sin(2 * Math.PI / 3), q: 1 },
+      { rx: 23 * Math.cos(Math.PI), ry: 23 * Math.sin(Math.PI), q: 1 },
+      { rx: 23 * Math.cos(4 * Math.PI / 3), ry: 23 * Math.sin(4 * Math.PI / 3), q: 1 },
+      { rx: 23 * Math.cos(5 * Math.PI / 3), ry: 23 * Math.sin(5 * Math.PI / 3), q: 1 },
+      // Ring 2 (8 vortices)
+      { rx: 48 * Math.cos(0), ry: 48 * Math.sin(0), q: 1 },
+      { rx: 48 * Math.cos(Math.PI / 4), ry: 48 * Math.sin(Math.PI / 4), q: 1 },
+      { rx: 48 * Math.cos(Math.PI / 2), ry: 48 * Math.sin(Math.PI / 2), q: 1 },
+      { rx: 48 * Math.cos(3 * Math.PI / 4), ry: 48 * Math.sin(3 * Math.PI / 4), q: 1 },
+      { rx: 48 * Math.cos(Math.PI), ry: 48 * Math.sin(Math.PI), q: 1 },
+      { rx: 48 * Math.cos(5 * Math.PI / 4), ry: 48 * Math.sin(5 * Math.PI / 4), q: 1 },
+      { rx: 48 * Math.cos(3 * Math.PI / 2), ry: 48 * Math.sin(3 * Math.PI / 2), q: 1 },
+      { rx: 48 * Math.cos(7 * Math.PI / 4), ry: 48 * Math.sin(7 * Math.PI / 4), q: 1 },
+    ];
+    let vortices = [];
+    let anglePrecession = 0;
+
+    // Canvases
+    let canvas3D, ctx3D;
+    let canvasDensity, ctxDensity;
+    let canvasPhase, ctxPhase;
+    let canvasLattice, ctxLattice;
+    let canvasParticles, ctxParticles;
+    let canvasPhaseChart, ctxPhaseChart;
+
+    let simTime = 0;
+    const FRAME_INTERVAL = 1000 / 24;
+    let lastFrameTime = 0;
+    let phaseChartDirty = true;
+    const VORTEX_BASE_SIZE = 240;
+    const VORTEX_CANVAS_SIZE = 336;
+    const VORTEX_RENDER_GRID = 96;
+    const SURFACE_RENDER_GRID = 36;
+    const VORTEX_BASE_CENTER = VORTEX_BASE_SIZE / 2;
+    const VORTEX_BASE_RADIUS = 86;
+    const VORTEX_PATTERN_SCALE = VORTEX_BASE_RADIUS / 64;
+
+    // 3D Particles cloud
+    const particles3D = [];
+    const NUM_PARTICLES = 50;
+    let boxAngle = 0;
+
+    function initParticles3D() {
+      particles3D.length = 0;
+      for (let i = 0; i < NUM_PARTICLES; i++) {
+        particles3D.push({
+          x: (Math.random() - 0.5) * 85,
+          y: (Math.random() - 0.5) * 85,
+          z: (Math.random() - 0.5) * 85,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: (Math.random() - 0.5) * 1.5,
+          vz: (Math.random() - 0.5) * 1.5,
+          spinX: 1, spinY: 0, spinZ: 0
+        });
+      }
+    }
+
+    // Lattice grid Node setup
+    const latticeNodes = [];
+    const LATTICE_COLS = 5;
+    const LATTICE_ROWS = 4;
+    let selectedNode = null;
+    let activeSwap = null;
+
+    function initLattice() {
+      latticeNodes.length = 0;
+      for (let r = 0; r < LATTICE_ROWS; r++) {
+        for (let c = 0; c < LATTICE_COLS; c++) {
+          latticeNodes.push({
+            id: r * LATTICE_COLS + c,
+            col: c,
+            row: r,
+            x: 45 + c * 52,
+            y: 45 + r * 45,
+            spin: Math.random() > 0.5 ? 1 : -1,
+            pulseTimer: 0
+          });
+        }
+      }
+    }
+
+    window.onload = function () {
+      canvas3D = document.getElementById('surface3DCanvas');
+      ctx3D = canvas3D.getContext('2d', { alpha: false, desynchronized: true });
+
+      canvasDensity = document.getElementById('vortexDensityCanvas');
+      ctxDensity = canvasDensity.getContext('2d', { alpha: false, desynchronized: true });
+
+      canvasPhase = document.getElementById('vortexPhaseCanvas');
+      ctxPhase = canvasPhase.getContext('2d', { alpha: false, desynchronized: true });
+
+      canvasLattice = document.getElementById('latticeCanvas');
+      ctxLattice = canvasLattice.getContext('2d', { alpha: false, desynchronized: true });
+
+      canvasParticles = document.getElementById('particleCloudCanvas');
+      ctxParticles = canvasParticles.getContext('2d', { alpha: false, desynchronized: true });
+
+      canvasPhaseChart = document.getElementById('phaseChartCanvas');
+      ctxPhaseChart = canvasPhaseChart.getContext('2d', { alpha: false, desynchronized: true });
+
+      resizeCanvases();
+      window.addEventListener('resize', resizeCanvases);
+
+      setupSliders();
+      initParticles3D();
+      initLattice();
+      syncVortices();
+      applyLanguage();
+
+      canvasLattice.addEventListener('mousedown', handleLatticeClick);
+      canvasPhaseChart.addEventListener('mousedown', handlePhaseChartClick);
+
+      requestAnimationFrame(animationLoop);
+    };
+
+    function resizeCanvases() {
+      canvas3D.width = 450;
+      canvas3D.height = 360;
+
+      canvasDensity.width = VORTEX_CANVAS_SIZE;
+      canvasDensity.height = VORTEX_CANVAS_SIZE;
+
+      canvasPhase.width = VORTEX_CANVAS_SIZE;
+      canvasPhase.height = VORTEX_CANVAS_SIZE;
+
+      canvasLattice.width = 300;
+      canvasLattice.height = 220;
+
+      canvasParticles.width = 300;
+      canvasParticles.height = 220;
+
+      canvasPhaseChart.width = 300;
+      canvasPhaseChart.height = 200;
+      phaseChartDirty = true;
+    }
+
+    function setupSliders() {
+      const tempSlider = document.getElementById('tempSlider');
+      const tempLabel = document.getElementById('tempLabel');
+      tempSlider.oninput = function () {
+        temperature = parseInt(this.value);
+        tempLabel.innerText = `${temperature} nK`;
+        updateStateHUD();
+      phaseChartDirty = true;
+      };
+
+      const rotSlider = document.getElementById('rotSlider');
+      const rotLabel = document.getElementById('rotLabel');
+      rotSlider.oninput = function () {
+        rotationSpeed = parseFloat(this.value);
+        rotLabel.innerText = `${rotationSpeed.toFixed(1)} rad/s`;
+        syncVortices();
+        updateStateHUD();
+      phaseChartDirty = true;
+      };
+
+      const densitySlider = document.getElementById('densitySlider');
+      const densityLabel = document.getElementById('densityLabel');
+      densitySlider.oninput = function () {
+        gasDensity = parseInt(this.value);
+        densityLabel.innerText = `${gasDensity} px`;
+      };
+    }
+
+    function updateStateHUD() {
+      const statusText = document.getElementById('systemStateText');
+      if (!statusText) return;
+      const Tc = 150 * Math.sqrt(Math.max(0.01, 1 - 0.75 * Math.pow(rotationSpeed / 10, 2)));
+      if (temperature >= Tc) {
+        statusText.innerText = t('disorderedGas');
+        statusText.className = "text-xs font-bold text-pink-500";
+      } else {
+        statusText.innerText = t('orderedSuperfluid');
+        statusText.className = "text-xs font-bold text-violet-600";
+      }
+    }
+
+    function resetLab() {
+      temperature = 10;
+      rotationSpeed = 0.0;
+      gasDensity = 60;
+
+      document.getElementById('tempSlider').value = 10;
+      document.getElementById('tempLabel').innerText = "10 nK";
+
+      document.getElementById('rotSlider').value = 0.0;
+      document.getElementById('rotLabel').innerText = "0.0 rad/s";
+
+      document.getElementById('densitySlider').value = 60;
+      document.getElementById('densityLabel').innerText = "60 px";
+
+      syncVortices();
+      updateStateHUD();
+      initParticles3D();
+      initLattice();
+      setLatticeStatus('selectFirst');
+      phaseChartDirty = true;
+    }
+
+    function syncVortices() {
+      let count = 0;
+      if (rotationSpeed >= 0.5 && rotationSpeed < 1.5) count = 1;
+      else if (rotationSpeed >= 1.5 && rotationSpeed < 5.0) count = 7;
+      else if (rotationSpeed >= 5.0) count = 15;
+
+      vortices = abrikosovGrid.slice(0, count).map(v => ({
+        rx: v.rx,
+        ry: v.ry,
+        q: v.q,
+        x: VORTEX_BASE_CENTER + v.rx,
+        y: VORTEX_BASE_CENTER + v.ry
+      }));
+    }
+
+    function handlePhaseChartClick(e) {
+      const rect = canvasPhaseChart.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+
+      const clickedRot = (cx / rect.width) * 10;
+      const clickedTemp = 300 - (cy / rect.height) * 300;
+
+      rotationSpeed = Math.max(0, Math.min(10, clickedRot));
+      temperature = Math.max(0, Math.min(300, clickedTemp));
+
+      document.getElementById('tempSlider').value = Math.round(temperature);
+      document.getElementById('tempLabel').innerText = `${Math.round(temperature)} nK`;
+
+      document.getElementById('rotSlider').value = rotationSpeed.toFixed(1);
+      document.getElementById('rotLabel').innerText = `${rotationSpeed.toFixed(1)} rad/s`;
+
+      syncVortices();
+      updateStateHUD();
+      phaseChartDirty = true;
+    }
+
+    function handleLatticeClick(e) {
+      const rect = canvasLattice.getBoundingClientRect();
+      const cx = ((e.clientX - rect.left) / rect.width) * canvasLattice.width;
+      const cy = ((e.clientY - rect.top) / rect.height) * canvasLattice.height;
+
+      let clickedNode = null;
+      let minDist = 22;
+      for (let node of latticeNodes) {
+        const dx = cx - node.x;
+        const dy = cy - node.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist) {
+          minDist = dist;
+          clickedNode = node;
+        }
+      }
+
+      if (!clickedNode) return;
+
+      if (!selectedNode) {
+        selectedNode = clickedNode;
+        setLatticeStatus('selectNeighbor');
+        selectedNode.pulseTimer = 10;
+      } else {
+        if (selectedNode.id === clickedNode.id) {
+          selectedNode = null;
+          setLatticeStatus('selectFirst');
+        } else {
+          const dCol = Math.abs(selectedNode.col - clickedNode.col);
+          const dRow = Math.abs(selectedNode.row - clickedNode.row);
+          const isAdjacent = (dCol === 1 && dRow === 0) || (dCol === 0 && dRow === 1);
+
+          if (isAdjacent) {
+            activeSwap = {
+              nodeA: selectedNode,
+              nodeB: clickedNode,
+              progress: 0
+            };
+            selectedNode = null;
+            setLatticeStatus('swapping');
+          } else {
+            selectedNode = clickedNode;
+            selectedNode.pulseTimer = 10;
+          }
+        }
+      }
+    }
+
+    function animationLoop(timestamp) {
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) {
+        requestAnimationFrame(animationLoop);
+        return;
+      }
+
+      const frameScale = lastFrameTime ? Math.min(2, (timestamp - lastFrameTime) / FRAME_INTERVAL) : 1;
+      lastFrameTime = timestamp;
+      simTime += 0.04 * frameScale;
+      anglePrecession += (0.003 + rotationSpeed * 0.004) * frameScale;
+
+      const numV = vortices.length;
+      const cos = Math.cos(anglePrecession);
+      const sin = Math.sin(anglePrecession);
+      for (let i = 0; i < numV; i++) {
+        const gridRef = abrikosovGrid[i];
+        vortices[i].x = VORTEX_BASE_CENTER + (gridRef.rx * cos - gridRef.ry * sin);
+        vortices[i].y = VORTEX_BASE_CENTER + (gridRef.rx * sin + gridRef.ry * cos);
+
+        if (temperature > 0) {
+          const jitter = temperature * 0.012;
+          vortices[i].x += (Math.random() - 0.5) * jitter;
+          vortices[i].y += (Math.random() - 0.5) * jitter;
+        }
+      }
+
+      draw3Dwavefunction();
+      drawVortexDensity();
+      drawVortexPhase();
+      drawLattice();
+      drawParticleCloud3D();
+      if (phaseChartDirty) {
+        drawPhaseChart();
+        phaseChartDirty = false;
+      }
+
+      requestAnimationFrame(animationLoop);
+    }
+
+    // -------------------------------------------------------------------------
+    // A. 3D Wavefunction Surface (Solid mesh, waterfall collapse plateau, axes)
+    // -------------------------------------------------------------------------
+    function draw3Dwavefunction() {
+      const w = canvas3D.width;
+      const h = canvas3D.height;
+      ctx3D.fillStyle = '#ffffff';
+      ctx3D.fillRect(0, 0, w, h);
+
+      const grid = SURFACE_RENDER_GRID;
+      const centerX = w / 2;
+      const centerY = h / 2 + 8;
+
+      const yaw = simTime * 0.07;
+      const pitch = 0.55;
+      const cosYaw = Math.cos(yaw);
+      const sinYaw = Math.sin(yaw);
+      const sinPitch = Math.sin(pitch);
+      const cosPitch = Math.cos(pitch);
+      const sizeScale = 104;
+      const heightScale = 1.0;
+
+      const points = [];
+      const numV = vortices.length;
+      const coreRadius = 0.105 + 0.045 / Math.sqrt(gasDensity * 0.1 + 0.25);
+
+      const vX = new Float32Array(numV);
+      const vY = new Float32Array(numV);
+      for (let i = 0; i < numV; i++) {
+        vX[i] = (vortices[i].x - 120) / 70;
+        vY[i] = (vortices[i].y - 120) / 70;
+      }
+
+      const T = temperature;
+      const colorStops = [
+        { t: 0.00, c: [79, 70, 229] },
+        { t: 0.28, c: [139, 92, 246] },
+        { t: 0.56, c: [217, 70, 239] },
+        { t: 0.78, c: [244, 114, 182] },
+        { t: 1.00, c: [251, 207, 232] }
+      ];
+
+      function smoothstep(edge0, edge1, x) {
+        const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3 - 2 * t);
+      }
+
+      function mix(a, b, f) {
+        return Math.round(a + (b - a) * f);
+      }
+
+      function surfaceColor(z, shade) {
+        const t = Math.max(0, Math.min(1, z));
+        let lo = colorStops[0];
+        let hi = colorStops[colorStops.length - 1];
+        for (let s = 0; s < colorStops.length - 1; s++) {
+          if (t >= colorStops[s].t && t <= colorStops[s + 1].t) {
+            lo = colorStops[s];
+            hi = colorStops[s + 1];
+            break;
+          }
+        }
+        const f = (t - lo.t) / Math.max(0.001, hi.t - lo.t);
+        const r = mix(lo.c[0], hi.c[0], f) * shade;
+        const g = mix(lo.c[1], hi.c[1], f) * shade;
+        const b = mix(lo.c[2], hi.c[2], f) * shade;
+        return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+      }
+
+      // Calculate a smooth harmonic-trap dome with sharply quantized vortex funnels.
+      for (let i = 0; i <= grid; i++) {
+        points[i] = [];
+        const x = -1.34 + 2.68 * (i / grid);
+        for (let j = 0; j <= grid; j++) {
+          const y = -1.34 + 2.68 * (j / grid);
+          const rSq = x * x + y * y;
+          const radial = Math.sqrt(rSq);
+          const rim = 1.0 - smoothstep(1.02, 1.28, radial);
+          let dens = Math.max(0, 1.0 - 0.36 * rSq);
+          dens = Math.pow(dens, 0.28) * rim;
+
+          for (let k = 0; k < numV; k++) {
+            const dx = x - vX[k];
+            const dy = y - vY[k];
+            const d = Math.sqrt(dx * dx + dy * dy);
+            const funnel = Math.min(1, Math.pow(d / coreRadius, 1.75));
+            dens *= funnel;
+          }
+
+          if (T > 0 && dens > 0) {
+            const scale = T / 300;
+            const shimmer = Math.sin(8 * x - simTime * 1.4) * Math.cos(8 * y + simTime * 1.1) * 0.018 * scale;
+            dens = Math.max(0, dens + shimmer * rim);
+          }
+
+          const rotX = x * cosYaw - y * sinYaw;
+          const rotY = x * sinYaw + y * cosYaw;
+
+          const px = centerX + rotX * sizeScale;
+          const py = centerY + (rotY * sinPitch - dens * heightScale) * sizeScale * 0.72;
+          const cameraDepth = rotY * cosPitch + dens * sinPitch;
+
+          points[i][j] = { px: px, py: py, z: dens, depth: cameraDepth };
+        }
+      }
+
+      const cells = [];
+      for (let i = 0; i < grid; i++) {
+        for (let j = 0; j < grid; j++) {
+          const p00 = points[i][j];
+          const p10 = points[i + 1][j];
+          const p11 = points[i + 1][j + 1];
+          const p01 = points[i][j + 1];
+
+          if (p00.z > 0.001 || p10.z > 0.001 || p11.z > 0.001 || p01.z > 0.001) {
+            const avgDepth = (p00.depth + p10.depth + p11.depth + p01.depth) / 4;
+            const avgZ = (p00.z + p10.z + p11.z + p01.z) / 4;
+
+            cells.push({
+              vertices: [p00, p10, p11, p01],
+              depth: avgDepth,
+              z: avgZ
+            });
+          }
+        }
+      }
+
+      cells.sort((a, b) => b.depth - a.depth);
+
+      for (let cell of cells) {
+        const zNorm = Math.min(1.0, cell.z);
+        const shade = 0.78 + 0.22 * Math.max(0, Math.min(1, (cell.depth + 1.2) / 2.7));
+
+        ctx3D.fillStyle = surfaceColor(zNorm, shade);
+        ctx3D.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+        ctx3D.lineWidth = 0.5;
+
+        ctx3D.beginPath();
+        ctx3D.moveTo(cell.vertices[0].px, cell.vertices[0].py);
+        ctx3D.lineTo(cell.vertices[1].px, cell.vertices[1].py);
+        ctx3D.lineTo(cell.vertices[2].px, cell.vertices[2].py);
+        ctx3D.lineTo(cell.vertices[3].px, cell.vertices[3].py);
+        ctx3D.closePath();
+        ctx3D.fill();
+        ctx3D.stroke();
+      }
+
+      draw3DAxes(centerX, centerY, sizeScale, pitch, 75);
+    }
+
+    function draw3DAxes(cx, cy, sizeScale, pitch, heightScale) {
+      ctx3D.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+      ctx3D.lineWidth = 1;
+      ctx3D.fillStyle = '#64748b';
+      ctx3D.font = '8px "Plus Jakarta Sans"';
+
+      const rot = simTime * 0.07;
+      const cos = Math.cos(rot);
+      const sin = Math.sin(rot);
+      const sp = Math.sin(pitch);
+      const scaleY = 0.72;
+
+      // X Axis ground plane line
+      const xStart = projectBase(-1.3, -1.3, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      const xEnd = projectBase(1.3, -1.3, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      ctx3D.beginPath();
+      ctx3D.moveTo(xStart.x, xStart.y);
+      ctx3D.lineTo(xEnd.x, xEnd.y);
+      ctx3D.stroke();
+
+      // X Ticks
+      const ticks = [-1.0, -0.5, 0.0, 0.5, 1.0];
+      const tickLabels = ["-5", "-2.5", "0", "2.5", "5"];
+      ticks.forEach((t, index) => {
+        const pt = projectBase(t, -1.3, cx, cy, sizeScale, cos, sin, sp, scaleY);
+        ctx3D.beginPath();
+        ctx3D.moveTo(pt.x, pt.y);
+        ctx3D.lineTo(pt.x, pt.y + 3);
+        ctx3D.stroke();
+        ctx3D.fillText(tickLabels[index], pt.x - 5, pt.y + 11);
+      });
+
+      const xMid = projectBase(0.0, -1.5, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      ctx3D.fillText("x(m) \u00d7 10\u207b\u2075", xMid.x - 20, xMid.y + 9);
+
+      // Y Axis ground line
+      const yStart = projectBase(-1.3, -1.3, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      const yEnd = projectBase(-1.3, 1.3, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      ctx3D.beginPath();
+      ctx3D.moveTo(yStart.x, yStart.y);
+      ctx3D.lineTo(yEnd.x, yEnd.y);
+      ctx3D.stroke();
+
+      // Y Ticks
+      ticks.forEach((t, index) => {
+        const pt = projectBase(-1.3, t, cx, cy, sizeScale, cos, sin, sp, scaleY);
+        ctx3D.beginPath();
+        ctx3D.moveTo(pt.x, pt.y);
+        ctx3D.lineTo(pt.x - 3, pt.y + 1.5);
+        ctx3D.stroke();
+        ctx3D.fillText(tickLabels[index], pt.x - 14, pt.y + 5);
+      });
+
+      const yMid = projectBase(-1.6, 0.0, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      ctx3D.fillText("y(m) \u00d7 10\u207b\u2075", yMid.x - 18, yMid.y);
+
+      // Vertical Z Density Axis ticks
+      const zBase = projectBase(-1.3, -1.3, cx, cy, sizeScale, cos, sin, sp, scaleY);
+      const zTopY = zBase.y - 1.25 * heightScale * sizeScale * scaleY * 0.008;
+      ctx3D.beginPath();
+      ctx3D.moveTo(zBase.x, zBase.y);
+      ctx3D.lineTo(zBase.x, zTopY);
+      ctx3D.stroke();
+
+      const zTicks = [0, 0.4, 0.8, 1.2];
+      const zLabels = ["0", "5", "10", "15"];
+      zTicks.forEach((zVal, index) => {
+        const zy = zBase.y - zVal * heightScale * sizeScale * scaleY * 0.008;
+        ctx3D.beginPath();
+        ctx3D.moveTo(zBase.x, zy);
+        ctx3D.lineTo(zBase.x - 3, zy);
+        ctx3D.stroke();
+        ctx3D.fillText(zLabels[index], zBase.x - 11, zy + 3);
+      });
+
+      ctx3D.fillText("\u00d7 10\u00b9\u00b2 m\u207b\u00b3", zBase.x - 22, zTopY - 6);
+    }
+
+    function projectBase(x, y, cx, cy, sizeScale, cos, sin, sp, scaleY) {
+      const rx = x * cos - y * sin;
+      const ry = x * sin + y * cos;
+      return {
+        x: cx + rx * sizeScale,
+        y: cy + (ry * sp) * sizeScale * scaleY
+      };
+    }
+
+    // -------------------------------------------------------------------------
+    // B. Left Vortex Canvas: $|\psi_a|^2$ Density (Symmetric Abrikosov lattice)
+    // -------------------------------------------------------------------------
+    function drawVortexDensity() {
+      const w = canvasDensity.width;
+      const h = canvasDensity.height;
+      ctxDensity.fillStyle = '#ffffff';
+      ctxDensity.fillRect(0, 0, w, h);
+
+      const scale = w / VORTEX_BASE_SIZE;
+      const grid = VORTEX_RENDER_GRID;
+      const step = w / grid;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = VORTEX_BASE_RADIUS * scale;
+      const coreSizeSq = (160 / (gasDensity * 0.1 + 0.1)) * scale * scale * VORTEX_PATTERN_SCALE * VORTEX_PATTERN_SCALE;
+      const numV = vortices.length;
+
+      const vX = new Float32Array(numV);
+      const vY = new Float32Array(numV);
+      for (let i = 0; i < numV; i++) {
+        vX[i] = (VORTEX_BASE_CENTER + (vortices[i].x - VORTEX_BASE_CENTER) * VORTEX_PATTERN_SCALE) * scale;
+        vY[i] = (VORTEX_BASE_CENTER + (vortices[i].y - VORTEX_BASE_CENTER) * VORTEX_PATTERN_SCALE) * scale;
+      }
+
+      ctxDensity.save();
+      ctxDensity.beginPath();
+      ctxDensity.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctxDensity.clip();
+
+      const T = temperature;
+
+      for (let gy = 0; gy < grid; gy++) {
+        const y = (gy + 0.5) * step;
+        const dyCenter = y - cy;
+        const dyCenterSq = dyCenter * dyCenter;
+
+        for (let gx = 0; gx < grid; gx++) {
+          const x = (gx + 0.5) * step;
+          const xb = x / scale;
+          const yb = y / scale;
+          const dxCenter = x - cx;
+          const rSq = dxCenter * dxCenter + dyCenterSq;
+
+          if (rSq < radius * radius) {
+            let n0 = Math.max(0, 1 - rSq / (radius * radius));
+            n0 = Math.pow(n0, 0.42);
+
+            let depletion = 1.0;
+            for (let i = 0; i < numV; i++) {
+              const dx = x - vX[i];
+              const dy = y - vY[i];
+              const dSq = dx * dx + dy * dy;
+              depletion *= dSq / (dSq + coreSizeSq);
+            }
+
+            const cloud = 0.12 * Math.sin(0.15 * xb - simTime * 1.2) * Math.cos(0.14 * yb + simTime * 0.9) +
+              0.07 * Math.sin(0.24 * xb + 0.19 * yb - simTime * 0.7);
+            let dens = Math.max(0, Math.min(1, n0 * depletion + cloud));
+
+            if (T > 0) {
+              const scale = T / 300;
+              dens = Math.max(0, dens * (1.0 + cloud * 0.7 * scale) - 0.035 * scale);
+            }
+
+            const edgeSoftness = 9 * scale;
+            const edge = Math.max(0, Math.min(1, 1 - (Math.sqrt(rSq) - radius + edgeSoftness) / edgeSoftness));
+            let r = 30, g = 27, b = 75;
+            if (dens < 0.34) {
+              const f = dens / 0.34;
+              r = Math.floor(124 * f + 30 * (1 - f));
+              g = Math.floor(58 * f + 27 * (1 - f));
+              b = Math.floor(237 * f + 75 * (1 - f));
+            } else if (dens < 0.78) {
+              const f = (dens - 0.34) / 0.44;
+              r = Math.floor(236 * f + 124 * (1 - f));
+              g = Math.floor(72 * f + 58 * (1 - f));
+              b = Math.floor(153 * f + 237 * (1 - f));
+            } else {
+              const f = (dens - 0.78) / 0.22;
+              r = Math.floor(255 * f + 236 * (1 - f));
+              g = Math.floor(205 * f + 72 * (1 - f));
+              b = Math.floor(235 * f + 153 * (1 - f));
+            }
+
+            const shade = 0.58 + 0.42 * edge;
+            ctxDensity.fillStyle = `rgb(${Math.floor(r * shade)},${Math.floor(g * shade)},${Math.floor(b * shade)})`;
+            ctxDensity.fillRect(gx * step, gy * step, step + 0.2, step + 0.2);
+          }
+        }
+      }
+
+      for (let i = 0; i < numV; i++) {
+        const coreRadius = 8.5 * scale * VORTEX_PATTERN_SCALE;
+        const core = ctxDensity.createRadialGradient(vX[i], vY[i], 0, vX[i], vY[i], coreRadius);
+        core.addColorStop(0, 'rgba(15, 23, 42, 0.90)');
+        core.addColorStop(0.62, 'rgba(30, 27, 75, 0.66)');
+        core.addColorStop(1, 'rgba(30, 27, 75, 0)');
+        ctxDensity.fillStyle = core;
+        ctxDensity.beginPath();
+        ctxDensity.arc(vX[i], vY[i], coreRadius, 0, 2 * Math.PI);
+        ctxDensity.fill();
+      }
+
+      ctxDensity.restore();
+
+      ctxDensity.strokeStyle = 'rgba(30, 27, 75, 0.18)';
+      ctxDensity.lineWidth = 1;
+      ctxDensity.beginPath();
+      ctxDensity.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctxDensity.stroke();
+    }
+
+    // C. Right Vortex Canvas: Phase $\theta_a$ (geometric spokes, circular arrow)
+    function drawVortexPhase() {
+      const w = canvasPhase.width;
+      const h = canvasPhase.height;
+      ctxPhase.fillStyle = '#ffffff';
+      ctxPhase.fillRect(0, 0, w, h);
+
+      const scale = w / VORTEX_BASE_SIZE;
+      const grid = VORTEX_RENDER_GRID;
+      const step = w / grid;
+      const numV = vortices.length;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = VORTEX_BASE_RADIUS * scale;
+
+      const vX = new Float32Array(numV);
+      const vY = new Float32Array(numV);
+      for (let i = 0; i < numV; i++) {
+        vX[i] = (VORTEX_BASE_CENTER + (vortices[i].x - VORTEX_BASE_CENTER) * VORTEX_PATTERN_SCALE) * scale;
+        vY[i] = (VORTEX_BASE_CENTER + (vortices[i].y - VORTEX_BASE_CENTER) * VORTEX_PATTERN_SCALE) * scale;
+      }
+
+      const phaseStops = [
+        [0.00, 124, 58, 237],
+        [0.18, 217, 70, 239],
+        [0.34, 236, 72, 153],
+        [0.52, 34, 211, 238],
+        [0.70, 6, 182, 212],
+        [0.86, 59, 130, 246],
+        [1.00, 236, 72, 153]
+      ];
+
+      function lerp(a, b, f) {
+        return Math.round(a + (b - a) * f);
+      }
+
+      function phaseColor(t) {
+        let lo = phaseStops[0];
+        let hi = phaseStops[phaseStops.length - 1];
+        for (let i = 0; i < phaseStops.length - 1; i++) {
+          if (t >= phaseStops[i][0] && t <= phaseStops[i + 1][0]) {
+            lo = phaseStops[i];
+            hi = phaseStops[i + 1];
+            break;
+          }
+        }
+        const f = (t - lo[0]) / Math.max(0.001, hi[0] - lo[0]);
+        return `rgb(${lerp(lo[1], hi[1], f)},${lerp(lo[2], hi[2], f)},${lerp(lo[3], hi[3], f)})`;
+      }
+
+      ctxPhase.save();
+      ctxPhase.beginPath();
+      ctxPhase.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctxPhase.clip();
+
+      for (let gy = 0; gy < grid; gy++) {
+        const y = (gy + 0.5) * step;
+        const dyCenter = y - cy;
+        const dyCenterSq = dyCenter * dyCenter;
+
+        for (let gx = 0; gx < grid; gx++) {
+          const x = (gx + 0.5) * step;
+          const xb = x / scale;
+          const yb = y / scale;
+          const dxCenter = x - cx;
+          const rSq = dxCenter * dxCenter + dyCenterSq;
+
+          if (rSq < radius * radius) {
+            let phase = Math.atan2(dyCenter, dxCenter) * 0.48;
+            for (let i = 0; i < numV; i++) {
+              phase += Math.atan2(y - vY[i], x - vX[i]);
+            }
+
+            phase += 0.75 * Math.sin(0.13 * xb + simTime * 0.9) * Math.cos(0.12 * yb - simTime * 0.6);
+
+            if (temperature > 0) {
+              const scale = temperature / 300;
+              phase += scale * Math.sin(0.08 * xb + 0.10 * yb + simTime) * 0.85;
+            }
+
+            let phaseNorm = ((phase % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+            phaseNorm = phaseNorm / (Math.PI * 2);
+
+            ctxPhase.fillStyle = phaseColor(phaseNorm);
+            ctxPhase.fillRect(gx * step, gy * step, step + 0.2, step + 0.2);
+          }
+        }
+      }
+
+      for (let i = 0; i < numV; i++) {
+        const spotRadius = 9 * scale * VORTEX_PATTERN_SCALE;
+        const spot = ctxPhase.createRadialGradient(vX[i], vY[i], 0, vX[i], vY[i], spotRadius);
+        spot.addColorStop(0, 'rgba(236, 72, 153, 0.90)');
+        spot.addColorStop(0.68, 'rgba(139, 92, 246, 0.50)');
+        spot.addColorStop(1, 'rgba(139, 92, 246, 0)');
+        ctxPhase.fillStyle = spot;
+        ctxPhase.beginPath();
+        ctxPhase.arc(vX[i], vY[i], spotRadius, 0, 2 * Math.PI);
+        ctxPhase.fill();
+      }
+
+      ctxPhase.restore();
+
+      ctxPhase.strokeStyle = 'rgba(59, 130, 246, 0.32)';
+      ctxPhase.lineWidth = 1;
+      ctxPhase.beginPath();
+      ctxPhase.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctxPhase.stroke();
+
+      const anchorX = cx - radius + 14 * scale;
+      const anchorY = cy + 34 * scale;
+      const arrowRadius = 14 * scale;
+      const start = 0.18 * Math.PI;
+      const end = 1.78 * Math.PI;
+
+      ctxPhase.strokeStyle = '#f43f5e';
+      ctxPhase.lineWidth = 2 * scale;
+      ctxPhase.beginPath();
+      ctxPhase.arc(anchorX, anchorY, arrowRadius, start, end);
+      ctxPhase.stroke();
+
+      const ax = anchorX + arrowRadius * Math.cos(end);
+      const ay = anchorY + arrowRadius * Math.sin(end);
+      const tangent = end + Math.PI / 2;
+      ctxPhase.fillStyle = '#f43f5e';
+      ctxPhase.beginPath();
+      ctxPhase.moveTo(ax, ay);
+      ctxPhase.lineTo(ax - 5 * scale * Math.cos(tangent - 0.45), ay - 5 * scale * Math.sin(tangent - 0.45));
+      ctxPhase.lineTo(ax - 5 * scale * Math.cos(tangent + 0.45), ay - 5 * scale * Math.sin(tangent + 0.45));
+      ctxPhase.closePath();
+      ctxPhase.fill();
+    }
+
+    // -------------------------------------------------------------------------
+    // D. Quantum Lattice & State Swap (matrix nodes, curved brackets)
+    // -------------------------------------------------------------------------
+    function drawLattice() {
+      const w = canvasLattice.width;
+      const h = canvasLattice.height;
+      ctxLattice.fillStyle = '#ffffff';
+      ctxLattice.fillRect(0, 0, w, h);
+
+      if (activeSwap) {
+        activeSwap.progress += 0.05;
+        if (activeSwap.progress >= 1.0) {
+          const temp = activeSwap.nodeA.spin;
+          activeSwap.nodeA.spin = activeSwap.nodeB.spin;
+          activeSwap.nodeB.spin = temp;
+          activeSwap = null;
+          setLatticeStatus('selectFirst');
+        }
+      }
+
+      for (let node of latticeNodes) {
+        if (node.pulseTimer > 0) node.pulseTimer--;
+      }
+
+      // Draw grid links
+      ctxLattice.lineWidth = 1;
+      ctxLattice.strokeStyle = '#f1f5f9';
+      for (let r = 0; r < LATTICE_ROWS; r++) {
+        for (let c = 0; c < LATTICE_COLS; c++) {
+          const node = latticeNodes[r * LATTICE_COLS + c];
+          if (c < LATTICE_COLS - 1) {
+            const rightNode = latticeNodes[r * LATTICE_COLS + c + 1];
+            ctxLattice.beginPath();
+            ctxLattice.moveTo(node.x, node.y);
+            ctxLattice.lineTo(rightNode.x, rightNode.y);
+            ctxLattice.stroke();
+          }
+          if (r < LATTICE_ROWS - 1) {
+            const downNode = latticeNodes[(r + 1) * LATTICE_COLS + c];
+            ctxLattice.beginPath();
+            ctxLattice.moveTo(node.x, node.y);
+            ctxLattice.lineTo(downNode.x, downNode.y);
+            ctxLattice.stroke();
+          }
+        }
+      }
+
+      // Draw exchange loop brackets
+      if (activeSwap) {
+        const { nodeA, nodeB, progress } = activeSwap;
+        ctxLattice.lineWidth = 1.5;
+        ctxLattice.strokeStyle = '#f97316';
+        ctxLattice.setLineDash([4, 2]);
+
+        const midX = (nodeA.x + nodeB.x) / 2;
+        const midY = (nodeA.y + nodeB.y) / 2;
+        const dx = nodeB.x - nodeA.x;
+        const dy = nodeB.y - nodeA.y;
+        const nx = -dy * 0.35;
+        const ny = dx * 0.35;
+
+        ctxLattice.beginPath();
+        ctxLattice.moveTo(nodeA.x, nodeA.y);
+        ctxLattice.quadraticCurveTo(midX + nx, midY + ny, nodeB.x, nodeB.y);
+        ctxLattice.stroke();
+
+        ctxLattice.beginPath();
+        ctxLattice.moveTo(nodeB.x, nodeB.y);
+        ctxLattice.quadraticCurveTo(midX - nx, midY - ny, nodeA.x, nodeA.y);
+        ctxLattice.stroke();
+        ctxLattice.setLineDash([]);
+
+        const t = progress;
+        const ax = (1 - t) * (1 - t) * nodeA.x + 2 * (1 - t) * t * (midX + nx) + t * t * nodeB.x;
+        const ay = (1 - t) * (1 - t) * nodeA.y + 2 * (1 - t) * t * (midY + ny) + t * t * nodeB.y;
+        ctxLattice.fillStyle = '#f97316';
+        ctxLattice.beginPath();
+        ctxLattice.arc(ax, ay, 4.5, 0, 2 * Math.PI);
+        ctxLattice.fill();
+
+        const bx = (1 - t) * (1 - t) * nodeB.x + 2 * (1 - t) * t * (midX - nx) + t * t * nodeA.x;
+        const by = (1 - t) * (1 - t) * nodeB.y + 2 * (1 - t) * t * (midY - ny) + t * t * nodeA.y;
+        ctxLattice.fillStyle = '#ec4899';
+        ctxLattice.beginPath();
+        ctxLattice.arc(bx, by, 4.5, 0, 2 * Math.PI);
+        ctxLattice.fill();
+      }
+
+      // Draw nodes with spin arrows
+      for (let node of latticeNodes) {
+        if (selectedNode && selectedNode.id === node.id) {
+          ctxLattice.strokeStyle = '#8b5cf6';
+          ctxLattice.lineWidth = 1.5;
+          ctxLattice.beginPath();
+          ctxLattice.arc(node.x, node.y, 16, 0, 2 * Math.PI);
+          ctxLattice.stroke();
+        }
+
+        if (node.pulseTimer > 0) {
+          ctxLattice.strokeStyle = 'rgba(249, 115, 22, 0.4)';
+          ctxLattice.lineWidth = 2;
+          ctxLattice.beginPath();
+          ctxLattice.arc(node.x, node.y, 13 + (10 - node.pulseTimer) * 1.5, 0, 2 * Math.PI);
+          ctxLattice.stroke();
+        }
+
+        ctxLattice.fillStyle = '#eff6ff';
+        ctxLattice.strokeStyle = '#cbd5e1';
+        ctxLattice.lineWidth = 1;
+        ctxLattice.beginPath();
+        ctxLattice.arc(node.x, node.y, 11, 0, 2 * Math.PI);
+        ctxLattice.fill();
+        ctxLattice.stroke();
+
+        ctxLattice.strokeStyle = node.spin > 0 ? '#f97316' : '#ec4899';
+        ctxLattice.lineWidth = 2;
+        ctxLattice.beginPath();
+        if (node.spin > 0) {
+          ctxLattice.moveTo(node.x, node.y + 5);
+          ctxLattice.lineTo(node.x, node.y - 5);
+          ctxLattice.lineTo(node.x - 3, node.y - 2);
+          ctxLattice.moveTo(node.x, node.y - 5);
+          ctxLattice.lineTo(node.x + 3, node.y - 2);
+        } else {
+          ctxLattice.moveTo(node.x, node.y - 5);
+          ctxLattice.lineTo(node.x, node.y + 5);
+          ctxLattice.lineTo(node.x - 3, node.y + 2);
+          ctxLattice.moveTo(node.x, node.y + 5);
+          ctxLattice.lineTo(node.x + 3, node.y + 2);
+        }
+        ctxLattice.stroke();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // E. 3D Particle Cloud Box (Velocity vectors aligning with T)
+    // -------------------------------------------------------------------------
+    function drawParticleCloud3D() {
+      const w = canvasParticles.width;
+      const h = canvasParticles.height;
+      ctxParticles.fillStyle = '#ffffff';
+      ctxParticles.fillRect(0, 0, w, h);
+
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const boxSize = 80;
+
+      boxAngle += 0.006;
+      const pitch = 0.45;
+
+      const cosY = Math.cos(boxAngle);
+      const sinY = Math.sin(boxAngle);
+      const cosP = Math.cos(pitch);
+      const sinP = Math.sin(pitch);
+
+      function project3D(x, y, z) {
+        const rotX = x * cosY - z * sinY;
+        const rotZ = x * sinY + z * cosY;
+        const rotY = y * cosP - rotZ * sinP;
+        return {
+          x: centerX + rotX,
+          y: centerY + rotY,
+          depth: rotZ
+        };
+      }
+
+      const hs = boxSize / 2;
+      const vertices = [
+        project3D(-hs, -hs, -hs),
+        project3D(hs, -hs, -hs),
+        project3D(hs, hs, -hs),
+        project3D(-hs, hs, -hs),
+        project3D(-hs, -hs, hs),
+        project3D(hs, -hs, hs),
+        project3D(hs, hs, hs),
+        project3D(-hs, hs, hs)
+      ];
+
+      ctxParticles.strokeStyle = 'rgba(226, 232, 240, 0.85)';
+      ctxParticles.lineWidth = 1;
+
+      const edges = [
+        [0, 1], [1, 2], [2, 3], [3, 0],
+        [4, 5], [5, 6], [6, 7], [7, 4],
+        [0, 4], [1, 5], [2, 6], [3, 7]
+      ];
+      for (let edge of edges) {
+        ctxParticles.beginPath();
+        ctxParticles.moveTo(vertices[edge[0]].x, vertices[edge[0]].y);
+        ctxParticles.lineTo(vertices[edge[1]].x, vertices[edge[1]].y);
+        ctxParticles.stroke();
+      }
+
+      const speed = 0.15 + (temperature / 150) * 1.5;
+      const alignment = Math.max(0, 1.0 - (temperature / 140));
+      const globalSpinAngle = simTime * 0.18;
+
+      for (let p of particles3D) {
+        p.x += p.vx * speed;
+        p.y += p.vy * speed;
+        p.z += p.vz * speed;
+
+        if (Math.abs(p.x) > hs) { p.vx *= -1; p.x = Math.sign(p.x) * hs; }
+        if (Math.abs(p.y) > hs) { p.vy *= -1; p.y = Math.sign(p.y) * hs; }
+        if (Math.abs(p.z) > hs) { p.vz *= -1; p.z = Math.sign(p.z) * hs; }
+
+        if (alignment > 0.05) {
+          const targetX = Math.cos(globalSpinAngle);
+          const targetY = 0;
+          const targetZ = Math.sin(globalSpinAngle);
+
+          p.spinX += (targetX - p.spinX) * alignment * 0.08;
+          p.spinY += (targetY - p.spinY) * alignment * 0.08;
+          p.spinZ += (targetZ - p.spinZ) * alignment * 0.08;
+
+          const len = Math.sqrt(p.spinX * p.spinX + p.spinY * p.spinY + p.spinZ * p.spinZ);
+          p.spinX /= len; p.spinY /= len; p.spinZ /= len;
+
+          p.vx += (-p.vx * alignment * 0.05);
+          p.vy += (-p.vy * alignment * 0.05);
+          p.vz += (-p.vz * alignment * 0.05);
+        } else {
+          p.spinX += (Math.random() - 0.5) * 0.4;
+          p.spinY += (Math.random() - 0.5) * 0.4;
+          p.spinZ += (Math.random() - 0.5) * 0.4;
+          const len = Math.sqrt(p.spinX * p.spinX + p.spinY * p.spinY + p.spinZ * p.spinZ + 0.001);
+          p.spinX /= len; p.spinY /= len; p.spinZ /= len;
+        }
+
+        const screenPt = project3D(p.x, p.y, p.z);
+
+        ctxParticles.fillStyle = alignment > 0.55 ? '#a78bfa' : '#f472b6';
+        ctxParticles.beginPath();
+        ctxParticles.arc(screenPt.x, screenPt.y, 3, 0, 2 * Math.PI);
+        ctxParticles.fill();
+
+        const arrowLength = 9;
+        const arrowHead = project3D(p.x + p.spinX * arrowLength, p.y + p.spinY * arrowLength, p.z + p.spinZ * arrowLength);
+
+        ctxParticles.strokeStyle = '#ef4444';
+        ctxParticles.lineWidth = 1.25;
+        ctxParticles.beginPath();
+        ctxParticles.moveTo(screenPt.x, screenPt.y);
+        ctxParticles.lineTo(arrowHead.x, arrowHead.y);
+        ctxParticles.stroke();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // F. Phase Transition Diagram / Phase Boundary Chart
+    // -------------------------------------------------------------------------
+    function drawPhaseChart() {
+      const w = canvasPhaseChart.width;
+      const h = canvasPhaseChart.height;
+      ctxPhaseChart.fillStyle = '#ffffff';
+      ctxPhaseChart.fillRect(0, 0, w, h);
+
+      const grad = ctxPhaseChart.createLinearGradient(0, h, w, 0);
+      grad.addColorStop(0, 'rgba(139, 92, 246, 0.12)');
+      grad.addColorStop(0.5, 'rgba(196, 181, 253, 0.05)');
+      grad.addColorStop(1, 'rgba(244, 114, 182, 0.1)');
+
+      ctxPhaseChart.fillStyle = grad;
+      ctxPhaseChart.fillRect(0, 0, w, h);
+
+      ctxPhaseChart.beginPath();
+      for (let px = 0; px <= w; px++) {
+        const rotVal = (px / w) * 10;
+        const tcVal = 150 * Math.sqrt(Math.max(0, 1 - 0.75 * Math.pow(rotVal / 10, 2)));
+        const py = h - (tcVal / 300) * h;
+        if (px === 0) ctxPhaseChart.moveTo(px, py);
+        else ctxPhaseChart.lineTo(px, py);
+      }
+      ctxPhaseChart.strokeStyle = '#c084fc';
+      ctxPhaseChart.lineWidth = 2;
+      ctxPhaseChart.setLineDash([4, 3]);
+      ctxPhaseChart.stroke();
+      ctxPhaseChart.setLineDash([]);
+
+      ctxPhaseChart.fillStyle = '#94a3b8';
+      ctxPhaseChart.font = '8px "Plus Jakarta Sans"';
+      ctxPhaseChart.fillText(t('chartSuperfluid'), 15, h - 15);
+      ctxPhaseChart.fillText(t('chartThermal'), w - 95, 20);
+
+      ctxPhaseChart.fillText(t('chartRotation'), w - 50, h - 5);
+      ctxPhaseChart.fillText(t('chartTemp'), 5, 12);
+
+      const tx = (rotationSpeed / 10) * w;
+      const ty = h - (temperature / 300) * h;
+
+      ctxPhaseChart.strokeStyle = '#f1f5f9';
+      ctxPhaseChart.lineWidth = 1;
+      ctxPhaseChart.beginPath();
+      ctxPhaseChart.moveTo(tx, 0); ctxPhaseChart.lineTo(tx, h);
+      ctxPhaseChart.moveTo(0, ty); ctxPhaseChart.lineTo(w, ty);
+      ctxPhaseChart.stroke();
+
+      ctxPhaseChart.beginPath();
+      ctxPhaseChart.arc(tx, ty, 6.5, 0, 2 * Math.PI);
+      ctxPhaseChart.strokeStyle = 'rgba(139, 92, 246, 0.4)';
+      ctxPhaseChart.lineWidth = 1.5;
+      ctxPhaseChart.stroke();
+
+      ctxPhaseChart.beginPath();
+      ctxPhaseChart.arc(tx, ty, 3, 0, 2 * Math.PI);
+      ctxPhaseChart.fillStyle = '#8b5cf6';
+      ctxPhaseChart.fill();
+    }
+  </script>
+</body>
+
+</html>
